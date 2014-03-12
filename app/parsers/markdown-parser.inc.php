@@ -667,7 +667,7 @@ class Markdown_Parser {
   
   function doHardBreaks($text) {
     # Do hard breaks:
-    if (Config::$md_gfm_style_linebreaks) {
+    if (\Stacey\Config::$md_gfm_style_linebreaks) {
       return preg_replace_callback('/ {2,}\n|\n{1}/',array(&$this, '_doHardBreaks_callback'), $text);
     }
     else {
