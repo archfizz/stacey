@@ -1,22 +1,27 @@
 <?php
 
-Class Asset {
+namespace Stacey\Asset;
 
-  var $data;
-  var $link_path;
-  var $file_name;
+class Asset
+{
+  public $data;
+  public $link_path;
+  public $file_name;
   static $identifiers;
 
-  function __construct($file_path) {
+  public function __construct($file_path)
+  {
     # create and store data required for this asset
     $this->set_default_data($file_path);
   }
 
-  function construct_link_path($file_path) {
+  public function construct_link_path($file_path)
+  {
     return preg_replace('/^\.\//', Helpers::relative_root_path(), $file_path);
   }
 
-  function set_default_data($file_path) {
+  public function set_default_data($file_path)
+  {
     # store link path
     $this->link_path = $this->construct_link_path($file_path);
 
@@ -38,5 +43,3 @@ Class Asset {
   }
 
 }
-
-?>

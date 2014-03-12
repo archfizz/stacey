@@ -1,6 +1,9 @@
 <?php
 
-class Config {
+namespace Stacey;
+
+class Config
+{
 
   /* STACEY CORE SETUP */
 
@@ -22,5 +25,3 @@ class Config {
   // was intended. Defaults to use GFM style linebreaks
   public static $md_gfm_style_linebreaks = true;
 }
-
-?>
