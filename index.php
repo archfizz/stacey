@@ -1,26 +1,26 @@
 <?php
 
-# let people know if they are running an unsupported version of PHP
-if(phpversion() < 5.3) {
+error_reporting(E_ALL);
 
-  die('<h3>Stacey requires PHP/5.3 or higher.<br>You are currently running PHP/'.phpversion().'.</h3><p>You should contact your host to see if they can upgrade your version of PHP.</p>');
+ini_set('xdebug.scream', 1);
+
+# let people know if they are running an unsupported version of PHP
+if (phpversion() < 5.3) {
+
+  die(<<<'HTML'
+<h3>Stacey requires PHP/5.3 or higher.<br>You are currently running PHP/'.phpversion().'.</h3>
+<p>You should contact your host to see if they can upgrade your version of PHP.</p>'
+HTML
+);
 
 } else {
 
-  # require config
-  require_once './extensions/config.php';
-  # require helpers class so we can use rglob
-  require_once './app/helpers.inc.php';
-  # require the yaml parser
-  require_once './app/parsers/yaml/sfYaml.php';
-  # include any php files which sit in the app folder
-  foreach(Helpers::rglob('./app/**.inc.php') as $include) include_once $include;
-  # include any custom extensions
-  foreach(Helpers::rglob('./extensions/**.inc.php') as $include) include_once $include;
+    $loader = require __DIR__.'/vendor/autoload.php';
 
-  # start the app
-  new Stacey($_GET);
+    require_once __DIR__.'/app/parsers/markdown-parser.inc.php';
 
+    $request = Symfony\Component\HttpFoundation\Request::createFromGlobals();
+
+    // start the app
+    new Stacey\Application($request->query->all());
 }
-
-?>

@@ -1,4 +1,12 @@
-# Stacey 3.0.0
+Stacey 4.0.0-dev
+================
+
+This is a fork of the main Stacey application at http://github.com/kolber/stacey
+
+The aim is bring more modern coding methods to the project (Composer, PSR-0, Unit Testing, Dependency Injection, etc).
+
+This fork is still very much in active development.
+
 
 ## Overview
 Stacey takes content from `.yml` files, image files and implied directory structure and generates a website.

@@ -1,0 +1,60 @@
+{
+    "name": "stacey/stacey-app",
+    "description": "The lightweight content management system",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Anthony Kolber",
+            "email": "ae@aestheticallyloyal.com",
+            "homepage": "http://aestheticallyloyal.com",
+            "role": "Original Developer"
+        }, {
+            "name": "Adam Elsodaney",
+            "email": "adam.elso@gmail.com",
+            "homepage": "http://twitter.com/archfizz",
+            "role": "Project Fork Developer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "slir/slir",
+                "version": "dev-master",
+                "dist": {
+                    "url": "https://github.com/lencioni/SLIR/archive/master.zip",
+                    "type": "zip"
+                },
+                "source": {
+                    "url": "https://github.com/lencioni/SLIR.git",
+                    "type": "git",
+                    "reference": "master"
+                },
+                "autoload": {
+                    "classmap": ["core/slir.class.php"]
+                }
+            }
+        }
+    ],
+    "require": {
+        "twig/twig": "1.4",
+        "symfony/yaml": "~2.4",
+        "slir/slir": "dev-master",
+
+        "symfony/http-foundation": "~2.4"
+    },
+    "require-dev": {
+        "fabpot/php-cs-fixer": "~0.4"
+    },
+    "autoload": {
+        "psr-0": { "": "src/" },
+        "classmap": [
+            "app/parsers/json-minifier.inc.php"
+        ]
+    },
+     "config": {
+        "bin-dir": "bin/"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
