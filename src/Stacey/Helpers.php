@@ -2,6 +2,8 @@
 
 namespace Stacey;
 
+use Symfony\Component\Finder\Finder;
+
 class Helpers
 {
   static $file_cache;
@@ -35,24 +37,31 @@ class Helpers
     return $url ? $url : 'index';
   }
 
-  public static function url_to_file_path($url)
-  {
-    # if the url is empty, we're looking for the index page
-    $url = empty($url) ? 'index': $url;
+    public static function url_to_file_path($url)
+    {
+        # if the url is empty, we're looking for the index page
+        $url = empty($url) ? 'index': $url;
 
-    $file_path = Config::$content_folder;
-    # Split the url and recursively unclean the parts into folder names
-    $url_parts = explode('/', $url);
-    foreach ($url_parts as $u) {
-        # Look for a folder at the current path that doesn't start with an underscore
-        if(!preg_match('/^_/', $u)) $matches = array_keys(Helpers::list_files($file_path, '/^(\d+?\.)?'.$u.'$/', true));
-        # No matches means a bad url
-        if(empty($matches)) return false;
-        else $file_path .=  '/'.$matches[0];
+        $file_path = Config::$content_folder;
+        # Split the url and recursively unclean the parts into folder names
+        $url_parts = explode('/', $url);
+
+        foreach ($url_parts as $u) {
+            // Look for a folder at the current path that doesn't start with an underscore
+            if (!preg_match('/^_/', $u)) {
+                $matches = array_keys(Helpers::list_files($file_path, '/^(\d+?\.)?'.$u.'$/', true));
+            }
+
+            // No matches means a bad url
+            if (empty($matches)) {
+                return false;
+            }
+
+            $file_path .=  '/'.$matches[0];
+        }
+
+        return $file_path;
     }
-
-    return $file_path;
-  }
 
   public static function has_children($dir)
   {
@@ -62,57 +71,84 @@ class Helpers
     return !empty($inner_folders);
   }
 
-  public static function file_cache($dir = false)
-  {
-    if (!self::$file_cache) {
-      # build file cache
-      self::build_file_cache(Config::$app_folder);
-      self::build_file_cache(Config::$content_folder);
-      self::build_file_cache(Config::$templates_folder);
-    }
-    if($dir && !isset(self::$file_cache[$dir])) return array();
+    public static function file_cache($dir = false)
+    {
+        if (!self::$file_cache) {
+            // build file cache
+            self::build_file_cache(Config::$app_folder);
+            self::build_file_cache(Config::$content_folder);
+            self::build_file_cache(Config::$templates_folder);
+        }
 
-    return $dir ? self::$file_cache[$dir] : self::$file_cache;
-  }
+        if ($dir && !isset(self::$file_cache[$dir])) {
+            return array();
+        }
 
-  public static function build_file_cache($dir = '.')
-  {
-    # build file cache
-    $files = glob($dir.'/*');
-    $files = is_array($files) ? $files : array();
-    foreach ($files as $path) {
-      $file = basename($path);
-      if(substr($file, 0, 1) == "." || $file == "_cache") continue;
-      if(is_dir($path)) self::build_file_cache($path);
-      if (is_readable($path)) {
-        self::$file_cache[$dir][] = array(
-          'path' => $path,
-          'file_name' => $file,
-          'is_folder' => (is_dir($path) ? 1 : 0),
-          'mtime' => filemtime($path)
-        );
-      }
-    }
-  }
-
-  public static function list_files($dir, $regex, $folders_only = false)
-  {
-    $files = array();
-    foreach (self::file_cache($dir) as $file) {
-      # if file matches regex, continue
-      if (isset($file['file_name']) && preg_match($regex, $file['file_name'])) {
-        # if $folders_only is true and the file is not a folder, skip it
-        if($folders_only && !$file['is_folder']) continue;
-        # otherwise, add file to results list
-        $files[$file['file_name']] = $file['path'];
-      }
+        return $dir ? self::$file_cache[$dir] : self::$file_cache;
     }
 
-    # sort list in reverse-numeric order
-    natcasesort($files);
+    public static function build_file_cache($dir = '.')
+    {
+        $finder = new Finder();
 
-    return $files;
-  }
+        $finder->in($dir);
+
+        self::$file_cache[$dir][] = $finder;
+
+          // foreach ($finder as $file) {
+          //     $path = $file->getRealpath();
+          //     $filename = $file->getBasename();
+
+          //     if (substr($filename, 0, 1) == "." || $filename == "_cache") {
+          //         continue;
+          //     }
+
+          //     if (is_dir($path)) {
+          //         self::build_file_cache($path);
+          //     }
+
+          //     if (is_readable($path)) {
+          //         self::$file_cache[$dir][] = array(
+          //             'path' => $path,
+          //             'file_name' => $filename,
+          //             'is_folder' => (is_dir($path) ? 1 : 0),
+          //             'mtime' => filemtime($path)
+          //         );
+          //     }
+          // }
+    }
+
+    public static function list_files($dir, $regex, $folders_only = false)
+    {
+
+        // $finder = new Finder();
+
+        // $finder = $finder->files()->in(__DIR__.'/../../content');
+
+        // var_dump(self::file_cache($dir));
+        $filesList = array();
+
+        foreach (self::file_cache($dir) as $finder) {
+            if ($folders_only) {
+                $finder->directories();
+            }
+
+            foreach ($finder as $file) {
+                var_dump($file);
+
+                // if file matches regex, continue
+                if (preg_match($regex, $file->getFilename())) {
+                    // otherwise, add file to results list
+                    $filesList[$file->getFilename()] = $file->getRealpath();
+                }
+            }
+        }
+
+        // sort list in reverse-numeric order
+        natcasesort($filesList);
+
+        return $filesList;
+    }
 
   public static function modrewrite_parse($url)
   {
