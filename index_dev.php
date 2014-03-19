@@ -22,5 +22,6 @@ HTML;
     $request = Symfony\Component\HttpFoundation\Request::createFromGlobals();
 
     // start the app
-    new Stacey\Application($request->query->all());
+    $app = new Stacey\Application($request);
+    $app->run();
 }
