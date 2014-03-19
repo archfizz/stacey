@@ -5,8 +5,10 @@ namespace Stacey;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Config\Loader\LoaderInterface;
 
-class Application
+class Application extends Kernel
 {
     /**
      * @var string
@@ -28,22 +30,29 @@ class Application
      */
     protected $container;
 
-    /**
-     * @param Request $request
-     */
-    public function __construct(Request $request)
+    public function registerBundles()
     {
-        $this->request = $request;
-        $this->buildContainer();
+        return array(new CoreBundle());
     }
 
-    private function buildContainer()
+    private function getAppDir()
     {
-        $this->container = new Container();
+        return $this->getRootDir() . '/../../app';
+    }
 
-        $this->container->timezone = function ($c) {
-            return 'Australia/Melbourne';
-        };
+    public function registerContainerConfiguration(LoaderInterface $loader)
+    {
+        $loader->load($this->getAppDir() . '/config/config_'.$this->getEnvironment().'.yml');
+    }
+
+    public function getCacheDir()
+    {
+        return $this->getAppDir() . '/_cache';
+    }
+
+    public function getLogDir()
+    {
+        return $this->getAppDir() . '/_logs';
     }
 
     public function run()
@@ -74,10 +83,12 @@ class Application
         $this->route = preg_replace('/[\.][\w\d]+?$/', '', $this->route);
         $filePath = Helpers::url_to_file_path($this->route);
 
+        var_dump($filePath);
+
         try {
             // create and render the current page
             $this->createPage($filePath);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             if ($e->getMessage() == "404") {
                 // return 404 headers
 
@@ -258,7 +269,7 @@ class Application
 
         // error out if template file doesn't exist (or glob returns an error)
         if (empty($template_name)) {
-            throw new Exception('404');
+            throw new \Exception('404');
         }
 
         // render page
